@@ -5,8 +5,6 @@ __pycache__/
 
 output
 _bak
-*.jpg
-*.png
 *.log
 .DS_Store
 
