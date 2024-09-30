@@ -15,12 +15,20 @@ import matplotlib.pyplot as plt
 import config as CFG
 from ImageByFolderDataset import *
 from ImageByFolderNet import *
+from ImageByFolderResNet import *
 
-model = ImageByFolderNet()
+#model = ImageByFolderNet()
+model = ImageByFolderResNet()
 
-if os.path.exists("output/test_ok"):
-	shutil.rmtree("output/test_ok")
-if os.path.exists("output/test_error"):
-	shutil.rmtree("output/test_error")
+model_name = get_model_name(model)
+model_output_dir = f'output/{model_name}'
+print(model_output_dir)
+if not os.path.isdir(model_output_dir):
+	os.makedirs(model_output_dir)
 
-test(model,all_test_images)
+if os.path.exists(f'{model_output_dir}/test_ok'):
+	shutil.rmtree(f'{model_output_dir}/test_ok')
+if os.path.exists(f'{model_output_dir}/test_error'):
+	shutil.rmtree(f'{model_output_dir}/test_error')
+
+test(model,all_test_images,model_output_dir)
