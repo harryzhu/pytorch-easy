@@ -16,7 +16,6 @@ import matplotlib.pyplot as plt
 
 import config as CFG 
 
-
 transform = transforms.Compose([
 	transforms.Resize([CFG.image_resize_width,CFG.image_resize_height]),
 	transforms.ToTensor(),

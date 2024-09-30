@@ -16,9 +16,23 @@ import config as CFG
 from ImageByFolderDataset import *
 from ImageByFolderNet import *
 from ImageByFolderResNet import *
+from ImageByFolderGoogLeNet import *
+from ImageByFolderAlexNet import *
+from ImageByFolderEfficientNet import *
+from ImageByFolderMobileNet import *
 
 #model = ImageByFolderNet()
-model = ImageByFolderResNet()
+
+#model = ImageByFolderResNet()
+#model = ImageByFolderResNet("resnet50")
+#model = ImageByFolderResNet("resnet101")
+#model = ImageByFolderResNet("resnet152")
+
+#model = ImageByFolderGoogLeNet()
+#model = ImageByFolderAlexNet()
+#model = ImageByFolderEfficientNet()
+model = ImageByFolderMobileNet()
+
 
 model_name = get_model_name(model)
 model_output_dir = f'output/{model_name}'
