@@ -20,6 +20,7 @@ from ImageByFolderGoogLeNet import *
 from ImageByFolderAlexNet import *
 from ImageByFolderEfficientNet import *
 from ImageByFolderMobileNet import *
+from ImageByFolderVggNet import *
 
 #model = ImageByFolderNet()
 
@@ -31,8 +32,8 @@ from ImageByFolderMobileNet import *
 #model = ImageByFolderGoogLeNet()
 #model = ImageByFolderAlexNet()
 #model = ImageByFolderEfficientNet()
-model = ImageByFolderMobileNet()
-
+#model = ImageByFolderMobileNet()
+model = ImageByFolderVggNet()
 
 model_name = get_model_name(model)
 model_output_dir = f'output/{model_name}'

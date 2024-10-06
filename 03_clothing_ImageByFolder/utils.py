@@ -4,6 +4,7 @@ import glob
 import random
 import numpy as np
 from PIL import Image
+import matplotlib.pyplot as plt
 import shutil
 
 from typing import List, Tuple, Dict, AnyStr, KeysView, Any
@@ -46,6 +47,25 @@ def get_model_name(model_instance):
 		raise ValueError("ERROR: cannot get the model name.")
 	return model_name
 
+def plot_figure(param={'figsize':(30,20),'x':[],'y':[],'title':"",'xlabel':"",'ylabel':"",'savefig_path':""}):
+	plt.figure(figsize=param['figsize'])
+	plt_x = param['x']
+	plt_y = param['x']
+	plt.plot(plt_x, plt_y, marker='o')
+	plt.title(param['title'])
+	plt.xlabel(param['xlabel'])
+	plt.ylabel(param['ylabel'])
+	plt.xticks(size=22)
+	plt.yticks(size=22)
+	plt.grid(True)
+	lr_dir = os.path.dirname(param['savefig_path'])
+	if not os.path.isdir(lr_dir):
+		os.makedirs(lr_dir)
+	plt.savefig(param['savefig_path'])
+	plt.close()
+
+
+
 def train(net, loss_fn, train_iter, optimizer, epochs,output_dir):
 	accumulator = Accumulator(['train_loss','vali_loss','train_acc','vali_acc'])
 	device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu')
@@ -70,6 +90,9 @@ def train(net, loss_fn, train_iter, optimizer, epochs,output_dir):
 	last_loss = 0.0
 	time_train_start = 0
 	time_vali_start = 0
+	fig_loss_reset_after_save = []
+	batch_count = len(train_iter)
+	print('batch_count:',len(train_iter))
 	for epoch in range(epoch_start,epochs):
 		time_train_start = time.time()
 		len_train = 0
@@ -77,8 +100,11 @@ def train(net, loss_fn, train_iter, optimizer, epochs,output_dir):
 
 		net.train()
 		epoch_loss.clear()
+		#accumulator['train_loss'].clear()
+		#accumulator['train_acc'].clear()
 		correct_num = 0
-		iter_batch = 0
+		
+		
 		for img, label in train_iter:
 			#print("label:",label)
 			img,label = img.to(device,dtype=torch.float), label.to(device)
@@ -98,13 +124,31 @@ def train(net, loss_fn, train_iter, optimizer, epochs,output_dir):
 			accumulator['train_loss'].append(sum(epoch_loss)/len(epoch_loss))
 			accumulator['train_acc'].append(correct_num/len_train)
 
+			fig_loss_reset_after_save.append(sum(epoch_loss)/len(epoch_loss))
+
+
 			#print(f'{ iter_batch }: { iter_batch * CFG.batch_size }:')
 			#print(':epoch_loss:',len(epoch_loss),epoch_loss)
 			#print('correct_num:',correct_num)
 			#print('len_train:',len_train)
+
+
+		
+		print('train_loss_size:',len(accumulator['train_loss']))
+		plot_figure(param = {
+			'figsize': (30,20),
+			'x': range(epoch_start, epoch_start+len(accumulator['train_loss'])),
+			'y': accumulator['train_loss'],
+			'title': f'Loss Function Curve - Epoch: {epoch}',
+			'xlabel': f'Batch: 0 - { len(accumulator["train_loss"]) }, Batch Size: {CFG.batch_size}',
+			'ylabel': 'Loss',
+			'savefig_path': f'{output_dir}/lr_{ optimizer.state_dict()["param_groups"][0]["lr"] }/1_loss_of_epoch_{epoch}.png'
+			})
+
+		
 		
 
-		print(f'-----------epoch: {epoch+1} start --------------')
+		print(f'----------- epoch: {epoch+1} start --------------')
 		print(f'epoch: {epoch+1} / {epochs} train loss: { accumulator["train_loss"][-1] }')
 		print(f'epoch: {epoch+1} / {epochs} train acc: { accumulator["train_acc"][-1] }')
 		print(f'epoch: {epoch+1} / {epochs} train time: {int(time.time()-time_train_start)} sec')
@@ -113,6 +157,22 @@ def train(net, loss_fn, train_iter, optimizer, epochs,output_dir):
 		if (((epoch+1) % 10 == 0) or (epoch + 1 >= epochs)):
 			torch.save(net.state_dict(), f'{output_dir}/model_{str(epoch+1)}.pth')
 			#torch.save(net.state_dict(), './output/model_current.pth')
+
+			print('fig_loss_reset_after_save:',len(fig_loss_reset_after_save))
+
+			plot_figure(param = {
+			'figsize': (30,20),
+			'x': range(batch_count*epoch, batch_count*epoch + len(fig_loss_reset_after_save)),
+			'y': fig_loss_reset_after_save,
+			'title': f'Loss Function Curve - Reset After Save',
+			'xlabel': f'Batch: {batch_count*epoch} - { batch_count*epoch + len(fig_loss_reset_after_save) }, Batch Size: {CFG.batch_size}',
+			'ylabel': 'Loss',
+			'savefig_path': f'{output_dir}/lr_{ optimizer.state_dict()["param_groups"][0]["lr"] }/2_loss_reset_after_save_{epoch+1}.png'
+			})
+
+			fig_loss_reset_after_save.clear()
+
+	return accumulator
 
 
 def test(model, all_test_images,output_dir):

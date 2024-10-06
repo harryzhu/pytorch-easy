@@ -73,6 +73,7 @@ def images2labels(images, class_list):
 def image_normalize_mean_std(sets=[]):
 	if len(sets) == 0:
 		return None
+
 	x2 = torch.stack([sample[0] for sample in ConcatDataset(sets)])
 
 	mean = torch.mean(x2, dim=(0,2,3))
@@ -84,8 +85,8 @@ def image_normalize_mean_std(sets=[]):
 	return mean, std
 
 		
-all_train_images = glob.glob(CFG.train_set_dir + '/**/*'+ CFG.image_extension)
-all_test_images = glob.glob(CFG.test_set_dir + '/**/*'+ CFG.image_extension)
+all_train_images = glob.glob(f'{CFG.train_set_dir}/**/*{CFG.image_extension}')
+all_test_images = glob.glob(f'{CFG.test_set_dir}/**/*{CFG.image_extension}')
 
 
 if not os.path.exists(CFG.image_classes_file):
@@ -107,13 +108,14 @@ dataset_test = ImageByFolderDataset(all_test_images,all_test_labels, transform)
 print(f'train images: {len(dataset_train)}')
 print(f'test images: {len(dataset_test)}')
 
+t1 = time.time()
 if not os.path.exists(CFG.transform_normalization_file):
 	normalization_mean, normalization_std = image_normalize_mean_std([dataset_train, ])
 	res = f'normalization_mean: {normalization_mean}, \nnormalization_std: {normalization_std}'
 	with open(CFG.transform_normalization_file,'w') as f:
 		f.write(res)
 	print(res)
-
+print("time:",time.time()-t1)
 dataloader_train = torch.utils.data.DataLoader(dataset_train, batch_size = CFG.batch_size, shuffle = True)
 # images_batch, labels_batch = next(iter(dataloader_train))
 # print("images_batch.shape: ",images_batch.shape)

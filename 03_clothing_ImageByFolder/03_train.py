@@ -21,6 +21,7 @@ from ImageByFolderGoogLeNet import *
 from ImageByFolderAlexNet import *
 from ImageByFolderEfficientNet import *
 from ImageByFolderMobileNet import *
+from ImageByFolderVggNet import *
 
 #model = ImageByFolderNet()
 
@@ -33,6 +34,7 @@ from ImageByFolderMobileNet import *
 #model = ImageByFolderAlexNet()
 #model = ImageByFolderEfficientNet()
 model = ImageByFolderMobileNet()
+#model = ImageByFolderVggNet()
 
 model_name = get_model_name(model)
 model_output_dir = f'output/{model_name}'
@@ -46,9 +48,9 @@ if model_name == "ImageByFolderNet":
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.001)
 
 if model_name == "ImageByFolderResNet":
-	num_epoch = 300
+	num_epoch = 100
 	loss_fn = nn.CrossEntropyLoss()
-	optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+	optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
 if model_name == "ImageByFolderGoogLeNet":
 	num_epoch = 300
@@ -68,7 +70,12 @@ if model_name == "ImageByFolderEfficientNet":
 if model_name == "ImageByFolderMobileNet":
 	num_epoch = 100
 	loss_fn = nn.CrossEntropyLoss()
-	optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+	optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+
+if model_name == "ImageByFolderVggNet":
+	num_epoch = 300
+	loss_fn = nn.CrossEntropyLoss()
+	optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
 
 accumulator = train(model, loss_fn, dataloader_train, optimizer, num_epoch, model_output_dir)
