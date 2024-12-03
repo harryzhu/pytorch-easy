@@ -1,0 +1,1 @@
+ffmpeg -i v4.mp4 -f image2 -r 21 -qscale:v 2 "./data2/v4/img-%05d.png"
